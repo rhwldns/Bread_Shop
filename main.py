@@ -3,7 +3,7 @@ from flask import Flask, g, session, redirect, request, url_for, jsonify
 from requests_oauthlib import OAuth2Session
 
 OAUTH2_CLIENT_ID = 838262770830409748
-OAUTH2_CLIENT_SECRET = "WRJ1w8eBBKLmI3mJo_CQu_gNu52QLa2v"
+OAUTH2_CLIENT_SECRET = os.getenv("SECRET")
 OAUTH2_REDIRECT_URI = 'http://127.0.0.1:5000/callback'
 
 API_BASE_URL = os.environ.get('API_BASE_URL', 'https://discordapp.com/api')
@@ -17,7 +17,7 @@ app.config['SECRET_KEY'] = OAUTH2_CLIENT_SECRET
 if 'http://' in OAUTH2_REDIRECT_URI:
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = 'true'
 
-token = 'ODM4MjYyNzcwODMwNDA5NzQ4.YI4jCg.7g-DcxabeOLZ2AB_85NjwEFyQg0'
+token = os.getenv("TOKEN")
 def token_updater(token):
     session['oauth2_token'] = token
 
