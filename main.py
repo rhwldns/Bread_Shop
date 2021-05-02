@@ -1,29 +1,76 @@
-from sanic import Sanic
-from sanic.response import json
-from sanic_jinja2 import SanicJinja2
-from index import bot
-from flask import request
+import os
+from flask import Flask, g, session, redirect, request, url_for, jsonify
+from requests_oauthlib import OAuth2Session
 
-app = Sanic(name='Discord Bread Shop', register=False)
-jinja = SanicJinja2(app, pkg_name="main")
+OAUTH2_CLIENT_ID = 838262770830409748
+OAUTH2_CLIENT_SECRET = "WRJ1w8eBBKLmI3mJo_CQu_gNu52QLa2v"
+OAUTH2_REDIRECT_URI = 'http://127.0.0.1:5000/callback'
 
-@app.route("/")
-async def index(request):
-    return jinja.render("index.html", request)  
+API_BASE_URL = os.environ.get('API_BASE_URL', 'https://discordapp.com/api')
+AUTHORIZATION_BASE_URL = API_BASE_URL + '/oauth2/authorize'
+TOKEN_URL = API_BASE_URL + '/oauth2/token'
 
-@app.route('/test')
-async def test(request):
-    return jinja.render("order.html", request)  
+app = Flask(__name__)
+app.debug = True
+app.config['SECRET_KEY'] = OAUTH2_CLIENT_SECRET
+
+if 'http://' in OAUTH2_REDIRECT_URI:
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = 'true'
+
+token = 'ODM4MjYyNzcwODMwNDA5NzQ4.YI4jCg.7g-DcxabeOLZ2AB_85NjwEFyQg0'
+def token_updater(token):
+    session['oauth2_token'] = token
 
 
-@app.route('/post', methods=['POST'])
-async def post(request):
-    value = request.form['test']
-    print(str(value))
+def make_session(token=None, state=None, scope=None):
+    return OAuth2Session(
+        client_id=OAUTH2_CLIENT_ID,
+        token=token,
+        state=state,
+        scope=scope,
+        redirect_uri=OAUTH2_REDIRECT_URI,
+        auto_refresh_kwargs={
+            'client_id': OAUTH2_CLIENT_ID,
+            'client_secret': OAUTH2_CLIENT_SECRET,
+        },
+        auto_refresh_url=TOKEN_URL,
+        token_updater=token_updater)
 
-    u = await bot.fetch_user(443734180816486441)
-    print(u)
-    return await u.send(str(value))
+
+@app.route('/')
+def index():
+    scope = request.args.get(
+        'scope',
+        'identify email connections guilds guilds.join')
+    discord = make_session(scope=scope.split(' '))
+    authorization_url, state = discord.authorization_url(AUTHORIZATION_BASE_URL)
+    session['oauth2_state'] = state
+    return redirect(authorization_url)
+
+
+@app.route('/callback')
+def callback():
+    if request.values.get('error'):
+        return request.values['error']
+    discord = make_session(state=session.get('oauth2_state'))
+    token = discord.fetch_token(
+        TOKEN_URL,
+        client_secret=OAUTH2_CLIENT_SECRET,
+        authorization_response=request.url)
+    session['oauth2_token'] = token
+    return redirect(url_for('.me'))
+
+
+@app.route('/me')
+def me():
+    discord = make_session(token=session.get('oauth2_token'))
+    user = discord.get(API_BASE_URL + '/users/@me').json()
+    guilds = discord.get(API_BASE_URL + '/users/@me/guilds').json()
+    connections = discord.get(API_BASE_URL + '/users/@me/connections').json()
+    jj = jsonify(user=user, guilds=guilds, connections=connections).json()
+
+    print(jj['connections']['guilds']['user']['id'])
+    return jsonify(user=user, guilds=guilds, connections=connections)
 
 
 if __name__ == '__main__':
