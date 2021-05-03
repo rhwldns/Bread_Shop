@@ -94,12 +94,13 @@ def orderss():
 @app.route('/post', methods=['POST'])
 def _post():
     value = request.form['applyorder']
-
-    if not user_id == None:
+    result = '200'
+    if user_id != None:
         with open(f'Goods/{str(user_id)}.txt', 'w', encoding='UTF-8') as f:
             f.write(value)
-        return
-    
+        return str(result)
+    return str(result)
+
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000)
