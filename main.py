@@ -48,7 +48,7 @@ def make_session(token=None, state=None, scope=None):
 def index():
     scope = request.args.get(
         'scope',
-        'identify email connections guilds guilds.join')
+        'identify')
     discord = make_session(scope=scope.split(' '))
     authorization_url, state = discord.authorization_url(AUTHORIZATION_BASE_URL)
     session['oauth2_state'] = state
@@ -75,6 +75,7 @@ def me():
     guilds = discord.get(API_BASE_URL + '/users/@me/guilds').json()
     connections = discord.get(API_BASE_URL + '/users/@me/connections').json()
     jj = dict(user)
+    global user_id
     user_id = jj['id']
 
     if coll.find_one({"_id": str(user_id)}):
@@ -84,7 +85,6 @@ def me():
             "_id": str(user_id),
             "count": 0
         })
-    global user_id
     return redirect(url_for('orderss'))
 
 @app.route('/orders')
@@ -96,12 +96,11 @@ def _post():
     value = request.form['applyorder']
 
     if not user_id == None:
-
-        with open(f'Goods/{str(user_id)}.txt') as f:
+        with open(f'Goods/{str(user_id)}.txt', 'w', encoding='UTF-8') as f:
             f.write(value)
     
     else:
-        
+        return
 
 
 if __name__ == '__main__':
