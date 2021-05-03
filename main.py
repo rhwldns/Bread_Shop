@@ -1,6 +1,13 @@
 import os
-from flask import Flask, g, session, redirect, request, url_for, jsonify
+from flask import Flask, g, session, redirect, request, url_for, jsonify, render_template
 from requests_oauthlib import OAuth2Session
+from dotenv import load_dotenv
+from json import loads
+from pymongo import MongoClient
+
+coll = MongoClient('mongodb://localhost:27017/').Bread_Shop.user
+
+load_dotenv()
 
 OAUTH2_CLIENT_ID = 838262770830409748
 OAUTH2_CLIENT_SECRET = os.getenv("SECRET")
@@ -67,10 +74,34 @@ def me():
     user = discord.get(API_BASE_URL + '/users/@me').json()
     guilds = discord.get(API_BASE_URL + '/users/@me/guilds').json()
     connections = discord.get(API_BASE_URL + '/users/@me/connections').json()
-    jj = jsonify(user=user, guilds=guilds, connections=connections).json()
+    jj = dict(user)
+    user_id = jj['id']
 
-    print(jj['connections']['guilds']['user']['id'])
-    return jsonify(user=user, guilds=guilds, connections=connections)
+    if coll.find_one({"_id": str(user_id)}):
+        pass
+    else:
+        coll.insert_one({
+            "_id": str(user_id),
+            "count": 0
+        })
+    global user_id
+    return redirect(url_for('orderss'))
+
+@app.route('/orders')
+def orderss():
+    return render_template('order.html')
+
+@app.route('/post', methods=['POST'])
+def _post():
+    value = request.form['applyorder']
+
+    if not user_id == None:
+
+        with open(f'Goods/{str(user_id)}.txt') as f:
+            f.write(value)
+    
+    else:
+        
 
 
 if __name__ == '__main__':
