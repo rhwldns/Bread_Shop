@@ -98,10 +98,8 @@ def _post():
     if not user_id == None:
         with open(f'Goods/{str(user_id)}.txt', 'w', encoding='UTF-8') as f:
             f.write(value)
-    
-    else:
         return
-
+    
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000)
