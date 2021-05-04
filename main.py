@@ -107,10 +107,26 @@ def _post():
     value = request.form['applyorder']
     result = '200'
     if user_id != None:
+
+        if coll.find_one({'_id': str(user_id)}):
+
+            find = {"_id": str(user_id)}
+            set_data = {"$inc": {"count": 1}}
+
+            coll.update_one(find, set_data)
+        
+        else:
+            coll.insert_one({
+            "_id": str(user_id),
+            "count": 1
+        })
+
         with open(f'Goods/{str(user_id)}.txt', 'w', encoding='UTF-8') as f:
             f.write(value)
+        
         return render_template('done.html', STATE='Completed', S='주문이 완료되었습니다.')
-    return redirect(url_for('index'))
+
+    return redirect(url_for('index')) # Oauth2 페이지로 redirect
 
 
 if __name__ == '__main__':
