@@ -29,8 +29,12 @@ class send_goods(commands.Cog):
 
                 lines = ''.join(text[0:])
                 ii = i.replace(".txt", "")
+
                 u = str(await self.bot.fetch_user(int(ii)))
-                embed = discord.Embed(title=f'`{u}` 님의 요청', description=f'{lines}', color=0x00FFFF, inline=False)
+                uu = await self.bot.get_user(int(ii))
+
+                embed = discord.Embed(title=f'`{u}` 님의 요청', description=f'{lines}', color=0xebb145, inline=False)
+                embed.set_footer(text=f'ㅣ{str(ii)}', icon_url=uu.avatar_url)
                 await channel.send(embed=embed)
 
                 os.remove(f'Goods/{i}')
