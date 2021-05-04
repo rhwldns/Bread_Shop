@@ -47,6 +47,10 @@ def make_session(token=None, state=None, scope=None):
 def main():
     return render_template('index.html')
 
+@app.route('/index.html')
+def main2():
+    return render_template('index.html')
+
 @app.route('/desc.html')
 def des():
     return render_template('desc.html')
@@ -106,7 +110,7 @@ def _post():
         with open(f'Goods/{str(user_id)}.txt', 'w', encoding='UTF-8') as f:
             f.write(value)
         return render_template('done.html', STATE='Completed', S='주문이 완료되었습니다.')
-    return render_template('done.html', STATE='Failed', S='오류가 발생하여 주문이 취소되었습니다.')
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':
