@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord.ext import tasks
 import discord
 import os
 from dotenv import load_dotenv
@@ -12,7 +13,7 @@ extensions = ['cogs.Send']
 
 if __name__ == "__main__":
     for i in extensions:
-        bot.load_extension(extensions)
+        bot.load_extension(i)
 
 @bot.event
 async def on_ready():

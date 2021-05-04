@@ -43,8 +43,15 @@ def make_session(token=None, state=None, scope=None):
         auto_refresh_url=TOKEN_URL,
         token_updater=token_updater)
 
+@app.route('/')
+def main():
+    return render_template('index.html')
 
-@app.route('/ouath2')
+@app.route('/desc.html')
+def des():
+    return render_template('desc.html')
+
+@app.route('/oauth2')
 def index():
     scope = request.args.get(
         'scope',
