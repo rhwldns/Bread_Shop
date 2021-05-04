@@ -44,7 +44,7 @@ def make_session(token=None, state=None, scope=None):
         token_updater=token_updater)
 
 
-@app.route('/')
+@app.route('/ouath2')
 def index():
     scope = request.args.get(
         'scope',
