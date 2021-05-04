@@ -17,7 +17,6 @@ class send_goods(commands.Cog):
         path_dir = './Goods/'
         file_list = os.listdir(path_dir)
         
-
         if file_list == None:
             pass
 
@@ -53,6 +52,20 @@ class send_goods(commands.Cog):
         embed.add_field(name = '성능', value = f'CPU 사용량 : `{cpu_per}%`\nRAM 사용량 : `{mem_per}%`', inline=False)
         embed.add_field(name = '서버 / 유저 수', value = f'서버 수 : {len(self.bot.guilds)}\n유저 수 : {len(self.bot.users)}', inline=True)
         await ctx.send(embed=embed)
+    
+    @commands.command(name='주문')
+    async def order(self, ctx, *, content=None):
+        if content == None:
+            embed = discord.Embed(title=':warning: 주의', description='`bs.주문` 명령어의 올바른 사용 방법 :\n`bs.주문 <내용 + 빵의 종류>` 입니다.', color=0xE1AA00)
+            embed.add_field(name='추가 기입 항목', value='쿠키 : 일정의 코드\n빵 : 한 코드 파일\n케이크 : 봇 주문제작 등', inline=False)
+            return await ctx.send(embed=embed)
+        
+        else:
+            with open(f'Goods/{str(ctx.author.id)}.txt', 'w', encoding="UTF-8") as f:
+                f.write(content)
+
+            embed = discord.Embed(title='완료', description='주문이 완료되었습니다.', color=0x00FFFF)
+            return await ctx.send(embed=embed)
     
 def setup(bot):
     bot.add_cog(send_goods(bot))
