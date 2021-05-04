@@ -11,6 +11,7 @@ class send_goods(commands.Cog):
 
     @tasks.loop(hours=1)
     async def send_good(self):
+        await self.bot.wait_until_ready()
         channel = self.bot.get_channel(838927142561251328)
 
         path_dir = './Goods/'
