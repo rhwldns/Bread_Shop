@@ -2,6 +2,7 @@ from discord.ext import commands
 from discord.ext import tasks
 import discord
 import os
+from os import popen
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -27,5 +28,13 @@ async def _reload(ctx: commands.Context):
     for i in extensions:
         bot.reload_extension(i)
     await ctx.reply('리로드가 완료되었습니다.')
+
+@bot.command(name='재시작', aliases=['리붓', '재붓', '리부팅', '재부팅'])
+async def restart(ctx):
+    with open('restarting.py', 'w') as f:
+        f.write('import os, time\ntime.sleep(3)\nos.system("python index.py")')
+    popen('python restarting.py')
+    await _bot.logout()
+
 
 bot.run(os.getenv("TOKEN"))
