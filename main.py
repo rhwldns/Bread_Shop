@@ -83,8 +83,6 @@ def callback():
 def me():
     discord = make_session(token=session.get('oauth2_token'))
     user = discord.get(API_BASE_URL + '/users/@me').json()
-    guilds = discord.get(API_BASE_URL + '/users/@me/guilds').json()
-    connections = discord.get(API_BASE_URL + '/users/@me/connections').json()
     jj = dict(user)
     global user_id
     user_id = jj['id']
