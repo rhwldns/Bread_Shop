@@ -5,6 +5,7 @@ from discord.ext import tasks
 import psutil
 import string
 from pymongo import MongoClient
+from datetime import datetime
 
 coll = MongoClient('mongodb://localhost:27017/').Bread_Shop.user
 
@@ -103,7 +104,8 @@ class send_goods(commands.Cog):
                 os.remove(f'Goods/{i}')
     
     @commands.command(name='완료')
-    async def order_done(self, ctx, id_uuid=None, *, content=None):
+    async def order_done(self, ctx, id_uuid: int=None, *, content=None):
+        global state
         if id_uuid == None or content == None or id_uuid and content == None::
             embed = discord.Embed(title=':warning: 주의', description='`bs.완료` 명령어의 올바른 사용 방법 :\n`bs.완료 <유저의 ID or UUID> <전달할 내용>` 입니다.', color=0xE1AA00)
             return await ctx.send(embed=embed)
@@ -111,18 +113,51 @@ class send_goods(commands.Cog):
         else:
             if type(id_uuid) == int:
                 user = self.bot.get_user(int(id_uuid))
+                d = coll.find_one({"_id": str(id_uuid)})
+
+                global user_data
+                user_data = 'UUID : ' + str(id_uuid) + ' ID : ' +str(d['uuid'])
                 await user.create_dm()
                 
                 u = await self.bot.fetch_user(int(id_uuid))
-                await ctx.send(f'<@{id_uuid}>님 안녕하세요? Bread Shop입니다.\n`{u}`님이 주문하신 Bread가 제작이 완료되었습니다.\nhttps://discord.gg/6SPFEC7HQb 로 들어오셔서 결제해주시길 바랍니다.')
-            
+                try:
+                    await user.send(f'<@{id_uuid}>님 안녕하세요? Bread Shop입니다.\n`{u}`님이 주문하신 Bread가 제작이 완료되었습니다.\nhttps://discord.gg/6SPFEC7HQb 로 들어오셔서 결제해주시길 바랍니다.')
+                    
+                    state = 1
+                    msg = await ctx.send('제작 완료 메세지 전송 ✅')
+
+                except:
+                    state = 0
+                    msg = await ctx.send('제작 완료 메세지 전송 ❎')
+
             else:
+
                 d = coll.find_one({"uuid": str(id_uuid)})
                 user = self.bot.get_user(int(d['_id']))
                 await user.create_dm()
                 
                 u = await self.bot.fetch_user(int(id_uuid))
-                await ctx.send(f'<@{id_uuid}>님 안녕하세요? Bread Shop입니다.\n`{u}`님이 주문하신 Bread가 제작이 완료되었습니다.\nhttps://discord.gg/6SPFEC7HQb 로 들어오셔서 결제해주시길 바랍니다.')
-    
+                try:
+                    await user.send(f'<@{id_uuid}>님 안녕하세요? Bread Shop입니다.\n`{u}`님이 주문하신 Bread가 제작이 완료되었습니다.\nhttps://discord.gg/6SPFEC7HQb 로 들어오셔서 결제해주시길 바랍니다.')
+                    msg = await ctx.send('제작 완료 메세지 전송 ✅')
+                    state = 1
+
+                except:
+                    msg = await ctx.send('제작 완료 메세지 전송 ❎')
+                    state = 0
+            
+            with open('./Log.txt', 'a', encoding="UTF-8") as f:
+                date = datetime.now()
+                date = datetime.strftime('%Y-%m-%d %H:%M:%S')
+                f.write(str(date + user_data + ' 제작 완료'))
+            
+            if state == 0: 
+                await msg.edit('제작 완료 메세지 전송 ❎\n날짜와 유저 정보 로그 작성 ✅')
+
+            elif state == 1: 
+                await msg.edit('제작 완료 메세지 전송 ✅\n날짜와 유저 정보 로그 작성 ✅')
+            
+            
+
 def setup(bot):
     bot.add_cog(send_goods(bot))
