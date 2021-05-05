@@ -4,6 +4,9 @@ import os
 from discord.ext import tasks
 import psutil
 import string
+from pymongo import MongoClient
+
+coll = MongoClient('mongodb://localhost:27017/').Bread_Shop.user
 
 class send_goods(commands.Cog):
     def __init__(self, bot):
@@ -91,15 +94,21 @@ class send_goods(commands.Cog):
                 u = str(await self.bot.fetch_user(int(ii)))
                 uu = await self.bot.get_user(int(ii))
 
+                d = coll.find_one({"_id": str(ii)})
+
                 embed = discord.Embed(title=f'`{u}` 님의 요청', description=f'{lines}', color=0xebb145, inline=False)
-                embed.set_footer(text=f'ㅣ{str(ii)}', icon_url=uu.avatar_url)
+                embed.set_footer(text=f'ㅣ{str(ii)}\nUUID : {d['uuid']}', icon_url=uu.avatar_url)
                 await channel.send(embed=embed)
 
                 os.remove(f'Goods/{i}')
     
     @commands.command(name='완료')
-    async def order_done(self, ctx):
+    async def order_done(self, ctx, id_uuid=None, *, content=None):
+        if id_uuid == None or content == None or id_uuid and content == None::
+            embed = discord.Embed(title=':warning: 주의', description='`bs.완료` 명령어의 올바른 사용 방법 :\n`bs.완료 <유저의 ID or UUID> <전달할 내용>` 입니다.', color=0xE1AA00)
+            return await ctx.send(embed=embed)
         
+
 
     
 def setup(bot):
