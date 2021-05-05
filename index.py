@@ -23,12 +23,14 @@ async def on_ready():
     await channel.send('**Bread Shop**\n\n봇 상태 : <:Online:793793792406192178>')
     print(f'{bot.user} On Ready.')
 
+@bot.is_owner()
 @bot.command(name='리로드', aliases=['f', 'ㄹ', 'flfhem'])
 async def _reload(ctx: commands.Context):
     for i in extensions:
         bot.reload_extension(i)
     await ctx.reply('리로드가 완료되었습니다.')
 
+@bot.is_owner()
 @bot.command(name='재시작', aliases=['리붓', '재붓', '리부팅', '재부팅'])
 async def restart(ctx):
     with open('restarting.py', 'w') as f:

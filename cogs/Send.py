@@ -108,8 +108,21 @@ class send_goods(commands.Cog):
             embed = discord.Embed(title=':warning: 주의', description='`bs.완료` 명령어의 올바른 사용 방법 :\n`bs.완료 <유저의 ID or UUID> <전달할 내용>` 입니다.', color=0xE1AA00)
             return await ctx.send(embed=embed)
         
-
-
+        else:
+            if type(id_uuid) == int:
+                user = self.bot.get_user(int(id_uuid))
+                await user.create_dm()
+                
+                u = await self.bot.fetch_user(int(id_uuid))
+                await ctx.send(f'<@{id_uuid}>님 안녕하세요? Bread Shop입니다.\n`{u}`님이 주문하신 Bread가 제작이 완료되었습니다.\nhttps://discord.gg/6SPFEC7HQb 로 들어오셔서 결제해주시길 바랍니다.')
+            
+            else:
+                d = coll.find_one({"uuid": str(id_uuid)})
+                user = self.bot.get_user(int(d['_id']))
+                await user.create_dm()
+                
+                u = await self.bot.fetch_user(int(id_uuid))
+                await ctx.send(f'<@{id_uuid}>님 안녕하세요? Bread Shop입니다.\n`{u}`님이 주문하신 Bread가 제작이 완료되었습니다.\nhttps://discord.gg/6SPFEC7HQb 로 들어오셔서 결제해주시길 바랍니다.')
     
 def setup(bot):
     bot.add_cog(send_goods(bot))
