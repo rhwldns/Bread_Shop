@@ -3,6 +3,7 @@ from discord.ext import commands
 import os
 from discord.ext import tasks
 import psutil
+import string
 
 class send_goods(commands.Cog):
     def __init__(self, bot):
@@ -66,6 +67,40 @@ class send_goods(commands.Cog):
 
             embed = discord.Embed(title='완료', description='주문이 완료되었습니다.', color=0x00FFFF)
             return await ctx.send(embed=embed)
+    
+    @commands.is_owner()
+    @commands.command(name='목록')
+    async def order_list(self, ctx):
+        channel = self.bot.get_channel(838927142561251328)
+
+        path_dir = './Goods/'
+        file_list = os.listdir(path_dir)
+        
+        if file_list == None:
+            pass
+
+        else:
+
+            for i in file_list:
+                with open(f'./Goods/{i}', 'r', encoding="UTF-8") as f:
+                    text = f.readlines()
+
+                lines = ''.join(text[0:])
+                ii = i.replace(".txt", "")
+
+                u = str(await self.bot.fetch_user(int(ii)))
+                uu = await self.bot.get_user(int(ii))
+
+                embed = discord.Embed(title=f'`{u}` 님의 요청', description=f'{lines}', color=0xebb145, inline=False)
+                embed.set_footer(text=f'ㅣ{str(ii)}', icon_url=uu.avatar_url)
+                await channel.send(embed=embed)
+
+                os.remove(f'Goods/{i}')
+    
+    @commands.command(name='완료')
+    async def order_done(self, ctx):
+        
+
     
 def setup(bot):
     bot.add_cog(send_goods(bot))

@@ -90,8 +90,14 @@ def me():
     if coll.find_one({"_id": str(user_id)}):
         pass
     else:
+        _LENGTH = 12
+        string_pool = string.ascii_letters + string.digits
+        result = ""
+        for i in range(_LENGTH):
+            result += random.choice(string_pool)
         coll.insert_one({
             "_id": str(user_id),
+            "uuid": str(result),
             "count": 0
         })
     return redirect(url_for('orderss'))
@@ -114,10 +120,16 @@ def _post():
             coll.update_one(find, set_data)
         
         else:
+            _LENGTH = 12
+            string_pool = string.ascii_letters + string.digits
+            result = ""
+            for i in range(_LENGTH):
+                result += random.choice(string_pool)
             coll.insert_one({
-            "_id": str(user_id),
-            "count": 1
-        })
+                "_id": str(user_id),
+                "uuid": str(result),
+                "count": 1
+            })
 
         with open(f'Goods/{str(user_id)}.txt', 'w', encoding='UTF-8') as f:
             f.write(value)
