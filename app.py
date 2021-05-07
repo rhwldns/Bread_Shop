@@ -135,9 +135,11 @@ def _post():
             f.write(value)
         
         return render_template('done.html', STATE='Completed', S='주문이 완료되었습니다.')
+    
+    else:
 
-    return redirect(url_for('index')) # Oauth2 페이지로 redirect
+        return redirect(url_for('index')) # Oauth2 페이지로 redirect
 
-
-if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000)
+if __name__ == "__main__":
+    
+    app.run(host="127.0.0.1", port=8080)
